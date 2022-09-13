@@ -7,4 +7,5 @@ im1 = Image.open(r"./testimg.png")
 # using the grab method
 im2 = ImageGrab.grab(bbox =(10, 10, 11, 11))
     
-print(im2.getpixel((0,0)))
+im1 = Image.open(r"./testimg.png")
+print(im1.getpixel((0,0)))
