@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from tkinter import messagebox
 from tkinter_label import Get_label
@@ -7,21 +8,21 @@ im1 = Image.open(r"./testimg.png")
 print(im1.getpixel((0,0)))
 '''
 
+img_path = os.path.join(os.getcwd(), "../../images")
+
 class Win:
     def __init__(self):
         self.win = Tk()
         self.win.title("틀린 그림 찾기")
         # self.win.iconbitmap() > 아이콘
         self.win.geometry("1300x700")
-        def callback(e):
-            x = e.x
-            y = e.y
-            print("Pointer is currently at %d, %d" %(x,y))
-        self.win.bind('<Button 1>', callback)
+        self.bind = False
         self.main_menu()
         self.win.mainloop()
+        
     
     def main_menu(self):
+        self.bind = False
         self.round = 1
         self.life = 5
         Main_menu_background = Get_label.image_label(
@@ -43,6 +44,7 @@ class Win:
         )
     
     def intro(self):
+        self.bind = False
         Intro_background = Get_label.image_label(
             self.win, "intro_bg.png", 0, 0
         )
@@ -55,6 +57,8 @@ class Win:
         )
     
     def game(self):
+        self.win.bind('<Button 1>', self.callback)
+        self.bind = True
         Game_background = Get_label.image_label(
             self.win, "game_bg.png", 0, 0
         )
@@ -88,8 +92,28 @@ class Win:
             678,
             121
         )
+        
+    def callback(self, pointer):
+        x = pointer.x
+        y = pointer.y
+        if self.bind:
+            image1 = Image.open(os.path.join(img_path, "test1.png"))
+            image2 = Image.open(os.path.join(img_path, "test2.png"))
+            
+            image1_color = image1.getpixel((x, y))
+            image2_color = image2.getpixel((x, y))
+            if image1_color != image2_color:
+                print(True)
+            else:
+                self.life -= 1
+                if self.life <= 0:
+                    self.gameover()
+                else:
+                    self.game()
+                print(False)
     
     def gameover(self):
+        self.bind = False
         Gameover_background = Get_label.image_label(
             self.win, "gameover_bg.png", 0, 0
         )
@@ -98,10 +122,11 @@ class Win:
             "restart_btn.png",
             565,
             525,
-            lambda: self.gameclear(),
+            lambda: self.main_menu(),
         )
     
     def gameclear(self):
+        self.bind = False
         Gameclear_background = Get_label.image_label(
             self.win, "gameclear_bg.png", 0, 0
         )
