@@ -26,18 +26,18 @@ class Win:
         self.round = 1
         self.life = 5
         Main_menu_background = Get_label.image_label(
-            self.win, "main_menu_bg.png", 0, 0
+            self.win, "background/main_menu_bg.png", 0, 0
         )
         Start_btn = Get_label.image_button(
             self.win,
-            "start_btn.png",
+            "button/start_btn.png",
             860,
             360,
             lambda: self.intro(),
         )
         End_btn = Get_label.image_button(
             self.win,
-            "end_btn.png",
+            "button/end_btn.png",
             1065,
             360,
             lambda: self._quit(),
@@ -46,11 +46,11 @@ class Win:
     def intro(self):
         self.bind = False
         Intro_background = Get_label.image_label(
-            self.win, "intro_bg.png", 0, 0
+            self.win, "background/intro_bg.png", 0, 0
         )
         Start_btn = Get_label.image_button(
             self.win,
-            "start_btn.png",
+            "button/start_btn.png",
             545,
             605,
             lambda: self.game(),
@@ -60,11 +60,11 @@ class Win:
         self.win.bind('<Button 1>', self.callback)
         self.bind = True
         Game_background = Get_label.image_label(
-            self.win, "game_bg.png", 0, 0
+            self.win, "background/game_bg.png", 0, 0
         )
         Round_label = Get_label.image_label_text(
             self.win,
-            "round_label.png",
+            "label/round_label.png",
             75,
             25,
             f"ROUND {self.round}",
@@ -73,13 +73,14 @@ class Win:
         )
         Life_label = Get_label.image_label_text(
             self.win,
-            "life_label.png",
+            "label/life_label.png",
             680,
             25,
             "LIFE "+"♡"*(5-self.life)+"♥"*(self.life),
             "White",
             ("Algerian", 40),
         )
+        '''
         Photo1_label = Get_label.image_label(
             self.win,
             "test1.png",
@@ -92,14 +93,15 @@ class Win:
             678,
             121
         )
+        '''
         
     def callback(self, pointer):
         x = pointer.x
         y = pointer.y
         if self.bind:
+            '''
             image1 = Image.open(os.path.join(img_path, "test1.png"))
             image2 = Image.open(os.path.join(img_path, "test2.png"))
-            
             image1_color = image1.getpixel((x, y))
             image2_color = image2.getpixel((x, y))
             if image1_color != image2_color:
@@ -111,15 +113,17 @@ class Win:
                 else:
                     self.game()
                 print(False)
-    
+        
+            '''
+            
     def gameover(self):
         self.bind = False
         Gameover_background = Get_label.image_label(
-            self.win, "gameover_bg.png", 0, 0
+            self.win, "background/gameover_bg.png", 0, 0
         )
         Retart_btn = Get_label.image_button(
             self.win,
-            "restart_btn.png",
+            "button/restart_btn.png",
             565,
             525,
             lambda: self.main_menu(),
@@ -128,11 +132,11 @@ class Win:
     def gameclear(self):
         self.bind = False
         Gameclear_background = Get_label.image_label(
-            self.win, "gameclear_bg.png", 0, 0
+            self.win, "background/gameclear_bg.png", 0, 0
         )
         Score_label = Get_label.image_label_text(
             self.win,
-            "score_label.png",
+            "label/score_label.png",
             530,
             475,
             f"기록 : XXX초",
@@ -141,7 +145,7 @@ class Win:
         )
         Reset_btn = Get_label.image_button(
             self.win,
-            "reset_btn.png",
+            "button/reset_btn.png",
             555,
             555,
             lambda: self.main_menu(),
