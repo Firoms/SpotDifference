@@ -1,3 +1,4 @@
+import random
 import os
 from tkinter import *
 from tkinter import messagebox
@@ -17,9 +18,19 @@ class Win:
         # self.win.iconbitmap() > 아이콘
         self.win.geometry("1300x700")
         self.bind = False
+        self.random_stage()
+        self.stage_num = 1
         self.main_menu()
         self.win.mainloop()
         
+        
+    def random_stage(self):
+        self.stages = [i for i in range(1, 25)]
+        random.shuffle(self.stages)
+        self.stages.append(25)
+        
+        self.stage = self.stages.pop(0)
+        self.orders = []
     
     def main_menu(self):
         self.bind = False
@@ -53,21 +64,32 @@ class Win:
             "button/start_btn.png",
             545,
             605,
-            lambda: self.game(),
+            lambda: self.next_game(),
         )
     
+    def next_game(self):
+        if self.orders:
+            self.order = self.orders.pop(0)
+        else:
+            self.stage_num += 1
+            self.stage = self.stages.pop(0)
+            self.orders = [1, 2]
+            random.shuffle(self.orders)
+            self.order = self.orders.pop(0)
+        self.game()
+        
     def game(self):
         self.win.bind('<Button 1>', self.callback)
         self.bind = True
         Game_background = Get_label.image_label(
             self.win, "background/game_bg.png", 0, 0
         )
-        Round_label = Get_label.image_label_text(
+        Stage_label = Get_label.image_label_text(
             self.win,
-            "label/round_label.png",
+            "label/stage_label.png",
             75,
             25,
-            f"ROUND {self.round}",
+            f"STAGE {self.stage_num}",
             "White",
             ("Algerian", 40),
         )
@@ -80,41 +102,39 @@ class Win:
             "White",
             ("Algerian", 40),
         )
-        '''
         Photo1_label = Get_label.image_label(
             self.win,
-            "test1.png",
+            f"original/original{self.stage}.png",
             73,
             121
         )
         Photo2_label = Get_label.image_label(
             self.win,
-            "test2.png",
+            f"change{self.order}/change{self.stage}-{self.order}.png",
             678,
             121
         )
-        '''
         
     def callback(self, pointer):
         x = pointer.x
         y = pointer.y
         if self.bind:
-            '''
-            image1 = Image.open(os.path.join(img_path, "test1.png"))
-            image2 = Image.open(os.path.join(img_path, "test2.png"))
+            image1 = Image.open(os.path.join(img_path, f"original/original{self.stage}.png"))
+            image2 = Image.open(os.path.join(img_path, f"change{self.order}/change{self.stage}-{self.order}.png"))
             image1_color = image1.getpixel((x, y))
             image2_color = image2.getpixel((x, y))
-            if image1_color != image2_color:
-                print(True)
-            else:
+            if image1_color[0] == image2_color[0] and image1_color[1] == image2_color[1] and image1_color[2] == image2_color[2]:
+                print("error")
                 self.life -= 1
                 if self.life <= 0:
                     self.gameover()
                 else:
-                    self.game()
-                print(False)
+                    self.next_game()
+            else:
+                print(True)
+                self.next_game()
+                
         
-            '''
             
     def gameover(self):
         self.bind = False
