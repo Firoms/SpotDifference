@@ -1,8 +1,11 @@
 import random
+import threading
 import os
+import time
 from tkinter import *
 from tkinter import messagebox
 from tkinter_label import Get_label
+from playsound import playsound
 from PIL import Image
 '''
 im1 = Image.open(r"./testimg.png")
@@ -18,11 +21,17 @@ class Win:
         # self.win.iconbitmap() > 아이콘
         self.win.geometry("1300x700")
         self.bind = False
-        self.random_stage()
-        self.stage_num = 1
+
+        music_thread = threading.Thread(target=self.main_music)
+        music_thread.daemon = True
+        music_thread.start()
         self.main_menu()
         self.win.mainloop()
-        
+    
+    def main_music(self):
+        while True:
+            playsound("../../musics/peppermint.mp3")
+            time.sleep(1)
         
     def random_stage(self):
         self.stages = [i for i in range(1, 25)]
@@ -34,7 +43,8 @@ class Win:
     
     def main_menu(self):
         self.bind = False
-        self.round = 1
+        self.random_stage()
+        self.stage_num = 0
         self.life = 5
         Main_menu_background = Get_label.image_label(
             self.win, "background/main_menu_bg.png", 0, 0
@@ -124,20 +134,25 @@ class Win:
             image1_color = image1.getpixel((x, y))
             image2_color = image2.getpixel((x, y))
             if image1_color[0] == image2_color[0] and image1_color[1] == image2_color[1] and image1_color[2] == image2_color[2]:
-                print("error")
                 self.life -= 1
                 if self.life <= 0:
                     self.gameover()
                 else:
-                    self.next_game()
+                    self.wrong()
             else:
-                print(True)
-                self.next_game()
+                self.correct()
                 
-        
+    def correct(self):
+        playsound("../../musics/correct.mp3")
+        self.next_game()
+    
+    def wrong(self):
+        playsound("../../musics/wrong.mp3")
+        self.game()
             
     def gameover(self):
         self.bind = False
+        playsound("../../musics/wrong.mp3")
         Gameover_background = Get_label.image_label(
             self.win, "background/gameover_bg.png", 0, 0
         )
