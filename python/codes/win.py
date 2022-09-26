@@ -7,12 +7,14 @@ from tkinter import messagebox
 from tkinter_label import Get_label
 from playsound import playsound
 from PIL import Image
-'''
+
+"""
 im1 = Image.open(r"./testimg.png")
 print(im1.getpixel((0,0)))
-'''
+"""
 
 img_path = os.path.join(os.getcwd(), "../../images")
+
 
 class Win:
     def __init__(self):
@@ -25,22 +27,23 @@ class Win:
         music_thread = threading.Thread(target=self.main_music)
         music_thread.daemon = True
         music_thread.start()
+
         self.main_menu()
         self.win.mainloop()
-    
+
     def main_music(self):
         while True:
             playsound("../../musics/peppermint.mp3")
             time.sleep(1)
-        
+
     def random_stage(self):
         self.stages = [i for i in range(1, 25)]
         random.shuffle(self.stages)
         self.stages.append(25)
-        
+
         self.stage = self.stages.pop(0)
         self.orders = []
-    
+
     def main_menu(self):
         self.bind = False
         self.random_stage()
@@ -63,7 +66,7 @@ class Win:
             360,
             lambda: self._quit(),
         )
-    
+
     def intro(self):
         self.bind = False
         Intro_background = Get_label.image_label(
@@ -76,7 +79,7 @@ class Win:
             605,
             lambda: self.next_game(),
         )
-    
+
     def next_game(self):
         if self.orders:
             self.order = self.orders.pop(0)
@@ -87,9 +90,9 @@ class Win:
             random.shuffle(self.orders)
             self.order = self.orders.pop(0)
         self.game()
-        
+
     def game(self):
-        self.win.bind('<Button 1>', self.callback)
+        self.win.bind("<Button 1>", self.callback)
         self.bind = True
         Game_background = Get_label.image_label(
             self.win, "background/game_bg.png", 0, 0
@@ -108,32 +111,39 @@ class Win:
             "label/life_label.png",
             680,
             25,
-            "LIFE "+"♡"*(5-self.life)+"♥"*(self.life),
+            "LIFE " + "♡" * (5 - self.life) + "♥" * (self.life),
             "White",
             ("Algerian", 40),
         )
-        Photo1_label = Get_label.image_label(
-            self.win,
-            f"original/original{self.stage}.png",
-            73,
-            121
+        self.Photo1_label = Get_label.image_label(
+            self.win, f"original/original{self.stage}.png", 73, 121
         )
-        Photo2_label = Get_label.image_label(
+        self.Photo2_label = Get_label.image_label(
             self.win,
             f"change{self.order}/change{self.stage}-{self.order}.png",
             678,
-            121
+            121,
         )
-        
+
     def callback(self, pointer):
         x = pointer.x
         y = pointer.y
         if self.bind:
-            image1 = Image.open(os.path.join(img_path, f"original/original{self.stage}.png"))
-            image2 = Image.open(os.path.join(img_path, f"change{self.order}/change{self.stage}-{self.order}.png"))
+            image1 = Image.open(
+                os.path.join(img_path, f"original/original{self.stage}.png")
+            )
+            image2 = Image.open(
+                os.path.join(
+                    img_path, f"change{self.order}/change{self.stage}-{self.order}.png"
+                )
+            )
             image1_color = image1.getpixel((x, y))
             image2_color = image2.getpixel((x, y))
-            if image1_color[0] == image2_color[0] and image1_color[1] == image2_color[1] and image1_color[2] == image2_color[2]:
+            if (
+                image1_color[0] == image2_color[0]
+                and image1_color[1] == image2_color[1]
+                and image1_color[2] == image2_color[2]
+            ):
                 self.life -= 1
                 if self.life <= 0:
                     self.gameover()
@@ -141,15 +151,17 @@ class Win:
                     self.wrong()
             else:
                 self.correct()
-                
+
     def correct(self):
         playsound("../../musics/correct.mp3")
-        self.next_game()
-    
+        self.Photo1_label.destroy()
+        self.Photo2_label.destroy()
+        self.win.after(200, self.next_game)
+
     def wrong(self):
         playsound("../../musics/wrong.mp3")
         self.game()
-            
+
     def gameover(self):
         self.bind = False
         playsound("../../musics/wrong.mp3")
@@ -163,7 +175,7 @@ class Win:
             525,
             lambda: self.main_menu(),
         )
-    
+
     def gameclear(self):
         self.bind = False
         Gameclear_background = Get_label.image_label(
@@ -185,16 +197,13 @@ class Win:
             555,
             lambda: self.main_menu(),
         )
-    
-    
-    
-    
-    
+
     def _quit(self):
         answer = messagebox.askyesno("확인", "정말 종료하시겠습니까?")
         if answer == True:
             self.win.quit()
             self.win.destroy()
             exit()
+
 
 game_start = Win()
