@@ -40,8 +40,6 @@ class Win:
         self.stages = [i for i in range(1, 25)]
         random.shuffle(self.stages)
         self.stages.append(25)
-
-        self.stage = self.stages.pop(0)
         self.orders = []
 
     def main_menu(self):
@@ -92,6 +90,8 @@ class Win:
         self.game()
 
     def game(self):
+        print(self.stages)
+        print(len(self.stages))
         self.win.bind("<Button 1>", self.callback)
         self.bind = True
         Game_background = Get_label.image_label(
