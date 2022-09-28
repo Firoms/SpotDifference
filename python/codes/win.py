@@ -8,11 +8,6 @@ from tkinter_label import Get_label
 from playsound import playsound
 from PIL import Image
 
-"""
-im1 = Image.open(r"./testimg.png")
-print(im1.getpixel((0,0)))
-"""
-
 img_path = os.path.join(os.getcwd(), "../../images")
 
 
@@ -20,32 +15,39 @@ class Win:
     def __init__(self):
         self.win = Tk()
         self.win.title("틀린 그림 찾기")
-        # self.win.iconbitmap() > 아이콘
+        self.win.iconbitmap("../../images/icon/icon.ico")
         self.win.geometry("1300x700")
+        self.win.config(cursor="ul_angle")
         self.bind = False
-
+        
+        
         music_thread = threading.Thread(target=self.main_music)
         music_thread.daemon = True
         music_thread.start()
 
         self.main_menu()
         self.win.mainloop()
-
+        
+    
+    
     def main_music(self):
-        while True:
-            playsound("../../musics/peppermint.mp3")
-            time.sleep(1)
+        music = threading.Thread(target=playsound, args=("../../musics/peppermint.mp3", ))
+        music.daemon = True
+        music.start()
+        
+        time.sleep(10)
+        return
 
-    def random_stage(self):
-        self.stages = [i for i in range(1, 25)]
-        random.shuffle(self.stages)
-        self.stages.append(25)
+    def random_round(self):
+        self.rounds = [i for i in range(1, 25)]
+        random.shuffle(self.rounds)
+        self.rounds.append(25)
         self.orders = []
 
     def main_menu(self):
         self.bind = False
-        self.random_stage()
-        self.stage_num = 0
+        self.random_round()
+        self.round_num = 0
         self.life = 5
         Main_menu_background = Get_label.image_label(
             self.win, "background/main_menu_bg.png", 0, 0
@@ -79,30 +81,31 @@ class Win:
         )
 
     def next_game(self):
-        if self.orders:
-            self.order = self.orders.pop(0)
+        if self.rounds or self.orders:
+            if self.orders:
+                self.order = self.orders.pop(0)
+            else:
+                self.round_num += 1
+                self.round = self.rounds.pop(0)
+                self.orders = [1, 2]
+                random.shuffle(self.orders)
+                self.order = self.orders.pop(0)
+            self.game()
         else:
-            self.stage_num += 1
-            self.stage = self.stages.pop(0)
-            self.orders = [1, 2]
-            random.shuffle(self.orders)
-            self.order = self.orders.pop(0)
-        self.game()
+            self.gameclear()
 
     def game(self):
-        print(self.stages)
-        print(len(self.stages))
         self.win.bind("<Button 1>", self.callback)
         self.bind = True
         Game_background = Get_label.image_label(
             self.win, "background/game_bg.png", 0, 0
         )
-        Stage_label = Get_label.image_label_text(
+        round_label = Get_label.image_label_text(
             self.win,
-            "label/stage_label.png",
+            "label/round_label.png",
             75,
             25,
-            f"STAGE {self.stage_num}",
+            f"round {self.round_num}",
             "White",
             ("Algerian", 40),
         )
@@ -116,11 +119,11 @@ class Win:
             ("Algerian", 40),
         )
         self.Photo1_label = Get_label.image_label(
-            self.win, f"original/original{self.stage}.png", 73, 121
+            self.win, f"original/original{self.round}.png", 73, 121
         )
         self.Photo2_label = Get_label.image_label(
             self.win,
-            f"change{self.order}/change{self.stage}-{self.order}.png",
+            f"change{self.order}/change{self.round}-{self.order}.png",
             678,
             121,
         )
@@ -130,20 +133,25 @@ class Win:
         y = pointer.y
         if self.bind:
             image1 = Image.open(
-                os.path.join(img_path, f"original/original{self.stage}.png")
+                os.path.join(img_path, f"original/original{self.round}.png")
             )
             image2 = Image.open(
                 os.path.join(
-                    img_path, f"change{self.order}/change{self.stage}-{self.order}.png"
+                    img_path, f"change{self.order}/change{self.round}-{self.order}.png"
                 )
             )
-            image1_color = image1.getpixel((x, y))
-            image2_color = image2.getpixel((x, y))
-            if (
-                image1_color[0] == image2_color[0]
-                and image1_color[1] == image2_color[1]
-                and image1_color[2] == image2_color[2]
-            ):
+            wrong = 0
+            for i in range(-1, 2):
+                image1_color = image1.getpixel((x+i, y+i))
+                image2_color = image2.getpixel((x+i, y+i))
+                if (
+                    image1_color[0] == image2_color[0]
+                    and image1_color[1] == image2_color[1]
+                    and image1_color[2] == image2_color[2]
+                ): wrong += 1
+            
+                    
+            if wrong==3: 
                 self.life -= 1
                 if self.life <= 0:
                     self.gameover()
