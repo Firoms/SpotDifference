@@ -1,3 +1,5 @@
+
+import datetime
 import random
 import threading
 import os
@@ -7,7 +9,7 @@ from tkinter import messagebox
 from tkinter_label import Get_label
 from playsound import playsound
 from PIL import Image
-
+from pygame import mixer
 img_path = os.path.join(os.getcwd(), "../../images")
 
 
@@ -20,7 +22,6 @@ class Win:
         self.win.config(cursor="ul_angle")
         self.bind = False
         
-        
         music_thread = threading.Thread(target=self.main_music)
         music_thread.daemon = True
         music_thread.start()
@@ -31,12 +32,18 @@ class Win:
     
     
     def main_music(self):
-        music = threading.Thread(target=playsound, args=("../../musics/peppermint.mp3", ))
-        music.daemon = True
-        music.start()
+        mixer.init()
+        mixer.music.load('../../musics/peppermint.mp3')
+        mixer.music.play()
+        while True:
+            time.sleep(1)
+            if self.round_num==25:
+                mixer.music.stop()
+                playsound("../../musics/birthday.mp3")
+                break
         
-        time.sleep(10)
-        return
+        mixer.music.load('../../musics/peppermint.mp3')
+        mixer.music.play()
 
     def random_round(self):
         self.rounds = [i for i in range(1, 25)]
@@ -69,6 +76,7 @@ class Win:
 
     def intro(self):
         self.bind = False
+        self.start_time = datetime.datetime.now()
         Intro_background = Get_label.image_label(
             self.win, "background/intro_bg.png", 0, 0
         )
@@ -142,16 +150,17 @@ class Win:
             )
             wrong = 0
             for i in range(-1, 2):
-                image1_color = image1.getpixel((x+i, y+i))
-                image2_color = image2.getpixel((x+i, y+i))
-                if (
-                    image1_color[0] == image2_color[0]
-                    and image1_color[1] == image2_color[1]
-                    and image1_color[2] == image2_color[2]
-                ): wrong += 1
+                for j in range(-1, 2):
+                    image1_color = image1.getpixel((x+i, y+j))
+                    image2_color = image2.getpixel((x+i, y+j))
+                    if (
+                        image1_color[0] == image2_color[0]
+                        and image1_color[1] == image2_color[1]
+                        and image1_color[2] == image2_color[2]
+                    ): wrong += 1
             
                     
-            if wrong==3: 
+            if wrong==9: 
                 self.life -= 1
                 if self.life <= 0:
                     self.gameover()
@@ -185,6 +194,8 @@ class Win:
         )
 
     def gameclear(self):
+        self.terminate_time = datetime.datetime.now()
+        self.use_time = self.terminate_time - self.start_time
         self.bind = False
         Gameclear_background = Get_label.image_label(
             self.win, "background/gameclear_bg.png", 0, 0
@@ -194,7 +205,7 @@ class Win:
             "label/score_label.png",
             530,
             475,
-            f"기록 : XXX초",
+            f"기록 : {self.use_time}",
             "White",
             ("HY나무M", 18),
         )
@@ -214,4 +225,6 @@ class Win:
             exit()
 
 
+
 game_start = Win()
+
